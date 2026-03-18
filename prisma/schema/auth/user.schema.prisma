@@ -1,0 +1,28 @@
+model User {
+  id            Int            @id @default(autoincrement())
+  name          String
+  username      String         @unique
+  password      String
+  active        Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  accessTokens  AccessToken[]  @relation("access-token-user")
+  refreshTokens RefreshToken[] @relation("refresh-token-user")
+}
+
+model AccessToken {
+  id               Int      @id @default(autoincrement())
+  value            String
+  active           Boolean  @default(true)
+  userID           Int
+  user             User     @relation("access-token-user", fields: [userID], references: [id])
+}
+
+model RefreshToken {
+  id               Int      @id @default(autoincrement())
+  value            String   
+  dateOfExpiration DateTime
+  active           Boolean  @default(true)
+  userID           Int
+  user             User     @relation("refresh-token-user", fields: [userID], references: [id])
+}

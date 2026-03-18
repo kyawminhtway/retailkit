@@ -1,29 +1,29 @@
+import { ADMIN_NAME, ADMIN_PASSWORD, ADMIN_USERNAME } from '#/constants/general.js';
+import { hashPassword } from '#/server/auth/auth.server.js';
 import { PrismaClient } from '../src/generated/prisma/client.js'
 
 import { PrismaPg } from '@prisma/adapter-pg'
 
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
+    connectionString: process.env.DATABASE_URL!,
 })
 
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
-  console.log('🌱 Seeding database...')
-
-  // Clear existing todos
-  await prisma.todo.deleteMany()
-
-  // Create example todos
-  const todos = await prisma.todo.createMany({
-    data: [
-      { title: 'Buy groceries' },
-      { title: 'Read a book' },
-      { title: 'Workout' },
-    ],
-  })
-
-  console.log(`✅ Created ${todos.count} todos`)
+    // Create Admin User
+    const userCount = await prisma.user.count();
+    if(userCount == 0){
+        const password = await hashPassword(ADMIN_PASSWORD);
+        await prisma.user.create({
+            data: {
+                name: ADMIN_NAME,
+                password,
+                username: ADMIN_USERNAME,
+            }
+        });
+    }
+    console.log('Admin user has been created/already created successfully.');
 }
 
 main()
